@@ -8,11 +8,20 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.select(:rating).uniq { |x| x.rating }.collect { |x| x.rating }.sort
-    p @all_ratings
-    if params.has_key? :sort_by
-      @movies = Movie.order(params[:sort_by])
+    if params.has_key? :ratings
+      if params[:ratings].is_a?(Array)
+        @ratings = params[:ratings]
+      else
+        @ratings = params[:ratings].keys
+      end
     else
-      @movies = Movie.all
+      @ratings = @all_ratings
+    end
+
+    if params.has_key? :sort_by
+      @movies = Movie.where(:rating => @ratings).order(params[:sort_by])
+    else
+      @movies = Movie.where(:rating => @ratings)
     end
   end
 
