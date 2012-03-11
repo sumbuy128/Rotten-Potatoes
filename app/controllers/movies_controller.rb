@@ -7,21 +7,32 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = Movie.select(:rating).uniq { |x| x.rating }.collect { |x| x.rating }.sort
+    @all_ratings = Movie.find(:all, :select => 'DISTINCT rating').map {|x| x.rating}
     if params.has_key? :ratings
       if params[:ratings].is_a?(Array)
         @ratings = params[:ratings]
       else
         @ratings = params[:ratings].keys
       end
+      session[:ratings] = @ratings
+    elsif session.has_key? :ratings
+      @ratings = session[:ratings]
+      redirect = true
     else
       @ratings = @all_ratings
     end
 
+    @movies = Movie.where(:rating => @ratings)
+
     if params.has_key? :sort_by
-      @movies = Movie.where(:rating => @ratings).order(params[:sort_by])
-    else
-      @movies = Movie.where(:rating => @ratings)
+      session[:sort_by] = params[:sort_by]
+      @movies = @movies.order(params[:sort_by])
+      if redirect
+        redirect_to movies_path :ratings => @ratings, :sort_by => params[:sort_by]
+      end
+    elsif session.has_key? :sort_by
+      @movies = @movies.order(session[:sort_by])
+        redirect_to movies_path :ratings => @ratings, :sort_by => session[:sort_by]
     end
   end
 
