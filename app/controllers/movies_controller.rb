@@ -33,6 +33,8 @@ class MoviesController < ApplicationController
     elsif session.has_key? :sort_by
       @movies = @movies.order(session[:sort_by])
         redirect_to movies_path :ratings => @ratings, :sort_by => session[:sort_by]
+    elsif redirect
+        redirect_to movies_path :ratings => @ratings
     end
   end
 
