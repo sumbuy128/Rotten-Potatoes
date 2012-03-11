@@ -7,6 +7,8 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.select(:rating).uniq { |x| x.rating }.collect { |x| x.rating }.sort
+    p @all_ratings
     if params.has_key? :sort_by
       @movies = Movie.order(params[:sort_by])
     else
